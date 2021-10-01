@@ -4,37 +4,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/calculator.js"></script>
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
 <body>
     <div class="container">
-        <p id="display"></p>
-        <button id="num0" value="0">0</button>
-        <button id="num1" value="1">1</button>
-        <button id="num2" value="2">2</button>
-        <button id="num3" value="3">3</button>
-        <button id="num4" value="4">4</button>
-        <button id="num5" value="5">5</button>
-        <button id="num6" value="6">6</button>
-        <button id="num7" value="7">7</button>
-        <button id="num8" value="8">8</button>
-        <button id="num9" value="9">9</button>
-        <button id="decimal" value=".">.</button>
-        <button id="negative" value="N">Neg.</button>
-        <button id="plus" value="+">+</button>
-        <button id="minus" value="-">-</button>
-        <button id="multiply" value="*">X</button>
-        <button id="divide" value='/'>/</button>
-        <button id="power" value="^">^</button>
+        <p id="input"></p>
+        <p id="output"></p>
+        <button id="num0" value="0" class="NumberButton">0</button>
+        <button id="num1" value="1" class="NumberButton">1</button>
+        <button id="num2" value="2" class="NumberButton">2</button>
+        <button id="num3" value="3" class="NumberButton">3</button>
+        <button id="num4" value="4" class="NumberButton">4</button>
+        <button id="num5" value="5" class="NumberButton">5</button>
+        <button id="num6" value="6" class="NumberButton">6</button>
+        <button id="num7" value="7" class="NumberButton">7</button>
+        <button id="num8" value="8" class="NumberButton">8</button>
+        <button id="num9" value="9" class="NumberButton">9</button>
+        <button id="decimal" value="." class="NumberButton">.</button>
+        <button id="negative" value="-" class="NumberButton">Neg.</button>
+        <button id="rightParentheses" value=")" class="NumberButton">)</button>
+        <button id="leftParentheses"  value="(" class="NumberButton">(</button>
+        <button id="plus" value="+" class="OperatorButton">+</button>
+        <button id="minus" value="—" class="OperatorButton">—</button>
+        <button id="multiply" value="*" class="OperatorButton">X</button>
+        <button id="divide" value='/' class="OperatorButton">/</button>
+        <button id="power" value="^" class="OperatorButton">^</button>
         <button id="equals">=</button>
-        <button id="delete">Delete</button>
-        <button id="clear">clear</button>
+        <button id="delete">DEL</button>
+        <button id="clearentry">CE</button>
+        <button id="allclear">AC</button>
         <button id="previous">Previous</button>
         <button id="next">Next</button>
-        <button id="leftParentheses">(</button>
-        <button id="rightParentheses">)</button>
     </div>
 </body>
+<script src="/calculator.js"></script>
 </html>
