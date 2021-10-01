@@ -1,0 +1,136 @@
+.container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 20px;
+    border: 2px black solid;
+    max-width: 600px;
+    height: 500px;
+    margin: auto;
+}
+
+#num0 {
+    grid-column-start: 1;
+    grid-row-start: 5;
+}
+
+#num1 {
+    grid-column-start: 1;
+    grid-row-start: 4;
+}
+
+#num2 {
+    grid-column-start: 2;
+    grid-row-start: 4;
+}
+
+#num3 {
+    grid-column-start: 3;
+    grid-row-start: 4;
+}
+
+#num4 {
+    grid-column-start: 1;
+    grid-row-start: 3;
+}
+
+#num5 {
+    grid-column-start: 2;
+    grid-row-start: 3;
+}
+
+#num6 {
+    grid-column-start: 3;
+    grid-row-start: 3;
+}
+
+#num7 {
+    grid-column-start: 1;
+    grid-row-start: 2;
+}
+
+#num8 {
+    grid-column-start: 2;
+    grid-row-start: 2;
+}
+#num9 {
+    grid-column-start: 3;
+    grid-row-start: 2;
+}
+
+#decimal {
+    grid-column-start: 2;
+    grid-row-start: 5;
+}
+
+#negative {
+    grid-column-start: 3;
+    grid-row-start: 5;
+}
+
+#plus {
+    grid-column-start:4;
+    grid-row-start: 3;
+}
+
+#minus {
+    grid-column-start:5;
+    grid-row-start: 3;
+}
+
+#multiply {
+    grid-column-start: 4;
+    grid-row-start: 4;
+}
+
+#divide {
+    grid-column-start: 5;
+    grid-row-start: 4;
+}
+
+#power {
+    grid-column-start: 4;
+    grid-row-start: 5;
+}
+
+#equals {
+    grid-column-start: 5;
+    grid-row-start: 5;
+}
+
+#delete {
+    grid-column-start: 6;
+    grid-row-start: 2;
+}
+
+#clear {
+    grid-column-start: 6;
+    grid-row-start: 3;
+}
+
+#previous {
+    grid-column-start: 6;
+    grid-row-start:4;
+}
+
+#next {
+    grid-column-start:6;
+    grid-row-start: 5;
+}
+
+#leftParentheses {
+    grid-column-start: 4;
+    grid-row-start: 2
+}
+
+#rightParentheses {
+    grid-column-start: 5;
+    grid-row-start: 2
+}
+
+#display {
+    grid-column: 1 / 7;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+}
