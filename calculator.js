@@ -1,159 +1,232 @@
-// GLOBAL VARIABLES
+initializeCalculator();
 
-const PRECEDENCEVALUES = {
-    '(': 0,
-    '+': 1,
-    '—': 1,
-    '*': 2,
-    '/': 2,
-    '^': 3,
-    ')': 5
-};
-const INPUT = document.getElementById('input');
-const OUTPUT = document.getElementById('output');
-const NUMBERBUTTONS = document.querySelectorAll('.NumberButton');
-const OPERATORBUTTONS = document.querySelectorAll('.OperatorButton');
-const EQUALS = document.getElementById('equals');
-const CLEARENTRY = document.getElementById('clearentry');
-const ALLCLEAR = document.getElementById('allclear');
-const DELETE = document.getElementById('delete');
-const PREVIOUS = document.getElementById('previous');
-const NEXT = document.getElementById('next');
-let CurrentDisplayValue = INPUT.innerText;
-let PreviousProblems = [];
-let PreviousProblemsIndex = 0;
+//Initializes calculator
+function initializeCalculator() {
+    const display = initializeDisplay();
+    const memory = initializeMemory(display[0], display[1]);
+    initializeControlButtons(display[0], display[1], memory);
+    initializeNumberButtons(display[0]);
+    initializeOperatorButtons(display[0]);
 
-
-// LISTENERS
-CLEARENTRY.addEventListener('click', () => {INPUT.innerText= '';});
-
-DELETE.addEventListener('click', () => {INPUT.innerText = INPUT.innerText.slice(0, -1)});
-
-EQUALS.addEventListener('click', () => {
-    CurrentDisplayValue = INPUT.innerText;
-    OUTPUT.innerText = PrepExpressionAndCalculate(CurrentDisplayValue);
-    PreviousProblems.unshift([INPUT.innerText, OUTPUT.innerText]);
-    console.log(PreviousProblems);
-})
-ALLCLEAR.addEventListener('click', () => {
-    INPUT.innerText = '';
-    OUTPUT.innerText = '';
-    PreviousProblems = [];
-})
-
-PREVIOUS.addEventListener('click', () => {
-    PreviousProblemsIndex++;
-    OUTPUT.innerText = PreviousProblems[PreviousProblemsIndex][1];
-    INPUT.innerText = PreviousProblems[PreviousProblemsIndex][0];
-})
-
-NEXT.addEventListener('click', () => {
-    PreviousProblemsIndex--;
-    OUTPUT.innerText = PreviousProblems[PreviousProblemsIndex][1];
-    INPUT.innerText = PreviousProblems[PreviousProblemsIndex][0];
-})
-
-for (element of NUMBERBUTTONS) {
-    element.addEventListener('click', (e) => {
-        CurrentDisplayValue = INPUT.innerText;
-        INPUT.innerText = CurrentDisplayValue + e.target.value
-    })
 }
 
-for (element of OPERATORBUTTONS) {
-    element.addEventListener('click', (e) => {
-        let CurrentDisplayValue = INPUT.innerText;
-        INPUT.innerText = CurrentDisplayValue + e.target.value
+function initializeDisplay() {
+    const inputDisplay = document.getElementById('input');
+    const outputDisplay = document.getElementById('output');
+    return [inputDisplay, outputDisplay];
+}
+
+function initializeMemory(inputDisplay, outputDisplay) {
+    let memory = [];
+    let memoryIndex = 0;
+    const previousButton = document.getElementById('previous');
+    const nextButton = document.getElementById('next');
+    
+    previousButton.addEventListener('click', () => {
+        try {
+            outputDisplay.innerText = memory[memoryIndex][1];
+            inputDisplay.innerText = memory[memoryIndex][0];
+        } catch {
+            memoryIndex = 0;
+            outputDisplay.innerText = memory[memoryIndex][1];
+            inputDisplay.innerText = memory[memoryIndex][0];
+        } finally {
+            memoryIndex++;
+        }
     })
+    
+    nextButton.addEventListener('click', () => {
+        try {
+            outputDisplay.innerText = memory[memoryIndex][1];
+            inputDisplay.innerText = memory[memoryIndex][0];
+            console.log(memoryIndex, 'tried');
+        } catch {
+            memoryIndex = memory.length-1;
+            outputDisplay.innerText = memory[memoryIndex][1];
+            inputDisplay.innerText = memory[memoryIndex][0];
+            console.log(memoryIndex), 'caught';
+        } finally {
+            memoryIndex--;
+            console.log(memoryIndex, 'finally');
+        }
+    })
+return memory;    
+}
+
+function initializeControlButtons(inputDisplay, outputDisplay, memory) {
+    const equalsButton = document.getElementById('equals');
+    const clearEntryButton = document.getElementById('clearentry');
+    const allClearButton = document.getElementById('allclear');
+    const deleteButton = document.getElementById('delete');
+    
+    clearEntryButton.addEventListener('click', () => {inputDisplay.innerText= '';});
+    
+    deleteButton.addEventListener('click', () => {inputDisplay.innerText = inputDisplay.innerText.slice(0, -1)});
+    
+    equalsButton.addEventListener('click', () => {
+        CurrentDisplayValue = inputDisplay.innerText;
+        outputDisplay.innerText = prepExpressionAndCalculate(CurrentDisplayValue);
+        memory.unshift([inputDisplay.innerText, outputDisplay.innerText]);
+        console.log(memory);
+    })
+    allClearButton.addEventListener('click', () => {
+        inputDisplay.innerText = '';
+        outputDisplay.innerText = '';
+        memory = [];
+    })
+    
+    
+}
+
+function initializeNumberButtons(inputDisplay) {
+    const numberButtons = document.querySelectorAll('.NumberButton');
+    for (element of numberButtons) {
+        element.addEventListener('click', (e) => {
+            const currentDisplayValue = inputDisplay.innerText;
+            inputDisplay.innerText = currentDisplayValue + e.target.value
+        })
+    }
+}
+
+function initializeOperatorButtons(inputDisplay) {
+    const operatorButtons = document.querySelectorAll('.OperatorButton');
+    for (element of operatorButtons) {
+        element.addEventListener('click', (e) => {
+            const currentDisplayValue = inputDisplay.innerText;
+            inputDisplay.innerText = currentDisplayValue + e.target.value
+        })
+    }
 }
 
 
-// FUNCTIONS FOR CALCULATIONS
+//calculates expressions
 String.prototype.isNumber = function() {
     if (Number(this)) {return true}
     else {return false};
 }
 
-Array.prototype.isNumber = function() {
-    if (Number(this)) {return true}
-    else {return false};
+function prepExpressionAndCalculate(string) {
+    const parsedExpression = expressionParser(string);
+    const convertedExpression = convertInfixtoPostfix(parsedExpression);
+    const solvedExpression = solvePostfixExpression(convertedExpression);
+    return solvedExpression
 }
 
-function PrepExpressionAndCalculate(string) {
-    let parsedExpression = Parser(string);
-    let convertedExpression = ConvertInfixToPostfix(parsedExpression);
-    let solvedExpression = PostfixSolver(convertedExpression);
+function expressionParser(string) {
+    const operands = ['+', '—', '*', '/', '^', '(', ')'];
+    let infixString = '(' + string + ')';
+    let infixExpression = [];
+    let currentNumber = [];
+    for (let i = 0; i < infixString.length; i++) {
+        if (operands.every(e => e != infixString[i])|| infixString[i] == '.') {
+            if (infixString[i] === '-') {
+                currentNumber.push('-')
+            } else {       
+                currentNumber.push(infixString[i]);
+            }
+        } else {
+            if (currentNumber.length > 0) infixExpression.push(currentNumber.join(''));
+            currentNumber = [];
+            infixExpression.push(infixString[i]);
+        };
+    } return infixExpression;
+}
 
-    function Parser(string) {
-        let String = '(' + string + ')';
-        let infixExpression = [];
-        let current_number = [];
-        for (let i = 0; i < String.length; i++) {
-            if (String[i] != '+' && String[i] != '—' && String[i] != '*' && String[i] != '/' && String[i] != '(' && String[i] != ')' && String[i] != '^' || String[i] == '.') {
-                if (String[i] === 'N') {
-                    current_number.push('-')
-                } else {       
-                current_number.push(String[i]);
-                }
-            } else {
-                if (current_number.length > 0) infixExpression.push(current_number.join(''));
-                current_number = [];
-                infixExpression.push(String[i]);
-            };
-        } return infixExpression;
-    }
-    
-    function ConvertInfixToPostfix(infix) {
-        let postfixStack = [];
-        let operandStack = [];
-        let infixStack = infix;
-        while (infixStack.length > 0) {
-            if (infixStack[0].isNumber()) {
-                postfixStack.push(infixStack[0]);
-                infixStack.splice(0,1);
-            } else if (infixStack[0] != '(' && infixStack[0] != ')') {
-                    if (PRECEDENCEVALUES[operandStack.at(-1)] >= PRECEDENCEVALUES[infixStack[0]]) postfixStack.push(operandStack.pop());
-                    operandStack.push(infixStack[0]);
-                    infixStack.splice(0,1);
-            } else if (infixStack[0] == '(') {
+function convertInfixtoPostfix(infix) {
+    const PRECEDENCEVALUES = {
+        '(': 0,
+        '+': 1,
+        '—': 1,
+        '*': 2,
+        '/': 2,
+        '^': 3,
+        ')': 4
+    };
+    const postfixStack = [];
+    const operandStack = [];
+    const infixStack = infix;
+    while (infixStack.length > 0) {
+        if (infixStack[0].isNumber()) {
+            postfixStack.push(infixStack[0]);
+            infixStack.splice(0,1);
+        } else if (infixStack[0] != '(' && infixStack[0] != ')') {
+                if (PRECEDENCEVALUES[operandStack.at(-1)] >= PRECEDENCEVALUES[infixStack[0]]) postfixStack.push(operandStack.pop());
                 operandStack.push(infixStack[0]);
                 infixStack.splice(0,1);
-            } else if (infixStack[0] == ')') {
-                while (operandStack.at(-1) != '(') {
-                    postfixStack.push(operandStack.pop());
-                }
-                operandStack.pop();
-                infixStack.splice(0,1);
+        } else if (infixStack[0] == '(') {
+            operandStack.push(infixStack[0]);
+            infixStack.splice(0,1);
+        } else if (infixStack[0] == ')') {
+            while (operandStack.at(-1) != '(') {
+                postfixStack.push(operandStack.pop());
             }
-        } while (operandStack.length > 0) {postfixStack.push(operandStack.pop())};
-    return postfixStack;
-    } 
-    
-    function PostfixSolver(postfixexpression) {
-        let PostfixStack = [];
-        while (postfixexpression.length > 0) {
-            if (postfixexpression[0].isNumber()) {
-                PostfixStack.push(postfixexpression[0]);
-                postfixexpression.splice(0,1);
-            } else {
-                const num1 = Number(PostfixStack.at(-2));
-                const num2 = Number(PostfixStack.at(-1));
-                PostfixStack.pop();
-                PostfixStack.pop();
-                const operand = postfixexpression.shift();
-                PostfixStack.push(ApplyOperand(num1, num2, operand));
-            }
-        } return PostfixStack;
-    }
-    
-    function ApplyOperand(num1, num2, operand) {
-        switch (operand) {
-            case '+': return num1 + num2;
-            case '—': return num1 - num2;
-            case '*': return num1 * num2;
-            case '/': return num1 / num2;
-            case '^': return num1 ** num2;
+            operandStack.pop();
+            infixStack.splice(0,1);
         }
-    }
-return solvedExpression
+    } while (operandStack.length > 0) {postfixStack.push(operandStack.pop())};
+return postfixStack;
+} 
+
+function solvePostfixExpression(postfixExpression) {
+    let postfixStack = [];
+    while (postfixExpression.length > 0) {
+        if (postfixExpression[0].isNumber()) {
+            postfixStack.push(postfixExpression[0]);
+            postfixExpression.splice(0,1);
+        } else {
+            const num1 = Number(postfixStack.at(-2));
+            const num2 = Number(postfixStack.at(-1));
+            postfixStack.pop();
+            postfixStack.pop();
+            const operand = postfixExpression.shift();
+            postfixStack.push(applyOperand(num1, num2, operand));
+        }
+    } return postfixStack;
+}
+    
+function applyOperand(num1, num2, operand) {
+        for (object in operators) {
+            if (object.name === operand) {
+                return object.operation(num1, num2)
+            }
+        }
+}
+
+
+const operators = {
+    '*' : {
+        'precedence': 2,
+        'name' : 'multiplication',
+        get operation(num1, num2) {return num1 * num2;},
+    },
+    '/': {
+        'precedence': 2,
+        'name' : '/',
+        get operation(num1, num2) {return num1 / num2;},
+    },
+    '+': {
+        'precedence': 1,
+        'name' : 'addition',
+        get operation(num1, num2) {return num1 + num2;},
+    },
+    '—': {
+        'precedence': 1,
+        'name' : 'subtraction',
+        get operation(num1, num2) {return num1 - num2;},
+    },
+    '^': {
+        'precedence': 3,
+        'name' : 'exponentiation',
+        get operation(num1, num2) {return num1 ** num2;},
+    },
+    '(': {
+        'precedence': 0,
+        'name' : 'leftParentheses',
+        'operation' : null,
+    },
+    ')': {
+        'precedence': 4,
+        'name' : ')',
+        'operation' : null, 
+    },
 }
