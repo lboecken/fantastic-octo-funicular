@@ -64,11 +64,11 @@ function initializeControlButtons(inputDisplay, outputDisplay, memory) {
     deleteButton.addEventListener('click', () => {inputDisplay.innerText = inputDisplay.innerText.slice(0, -1)});
     
     equalsButton.addEventListener('click', () => {
-        CurrentDisplayValue = inputDisplay.innerText;
-        outputDisplay.innerText = prepExpressionAndCalculate(CurrentDisplayValue);
+        let currentDisplayValue = inputDisplay.innerText;
+        outputDisplay.innerText = prepExpressionAndCalculate(currentDisplayValue);
         memory.unshift([inputDisplay.innerText, outputDisplay.innerText]);
-        console.log(memory);
     })
+
     allClearButton.addEventListener('click', () => {
         inputDisplay.innerText = '';
         outputDisplay.innerText = '';
@@ -113,12 +113,11 @@ function prepExpressionAndCalculate(string) {
 }
 
 function expressionParser(string) {
-    const operands = ['+', '—', '*', '/', '^', '(', ')'];
     let infixString = '(' + string + ')';
     let infixExpression = [];
     let currentNumber = [];
     for (let i = 0; i < infixString.length; i++) {
-        if (operands.every(e => e != infixString[i])|| infixString[i] == '.') {
+        if (Object.keys(operators).every(e => e != infixString[i])|| infixString[i] == '.') {
             if (infixString[i] === '-') {
                 currentNumber.push('-')
             } else {       
@@ -133,15 +132,6 @@ function expressionParser(string) {
 }
 
 function convertInfixtoPostfix(infix) {
-    const PRECEDENCEVALUES = {
-        '(': 0,
-        '+': 1,
-        '—': 1,
-        '*': 2,
-        '/': 2,
-        '^': 3,
-        ')': 4
-    };
     const postfixStack = [];
     const operandStack = [];
     const infixStack = infix;
@@ -150,7 +140,7 @@ function convertInfixtoPostfix(infix) {
             postfixStack.push(infixStack[0]);
             infixStack.splice(0,1);
         } else if (infixStack[0] != '(' && infixStack[0] != ')') {
-                if (PRECEDENCEVALUES[operandStack.at(-1)] >= PRECEDENCEVALUES[infixStack[0]]) postfixStack.push(operandStack.pop());
+                if (operators[operandStack.at(-1)].precedence >= operators[infixStack[0]].precedence) postfixStack.push(operandStack.pop());
                 operandStack.push(infixStack[0]);
                 infixStack.splice(0,1);
         } else if (infixStack[0] == '(') {
@@ -173,7 +163,9 @@ function solvePostfixExpression(postfixExpression) {
         if (postfixExpression[0].isNumber()) {
             postfixStack.push(postfixExpression[0]);
             postfixExpression.splice(0,1);
+            console.log('am i getting called?')
         } else {
+            console.log(postfixStack);
             const num1 = Number(postfixStack.at(-2));
             const num2 = Number(postfixStack.at(-1));
             postfixStack.pop();
@@ -181,43 +173,44 @@ function solvePostfixExpression(postfixExpression) {
             const operand = postfixExpression.shift();
             postfixStack.push(applyOperand(num1, num2, operand));
         }
-    } return postfixStack;
+    } 
+console.log(postfixStack)
+return postfixStack;
 }
     
 function applyOperand(num1, num2, operand) {
         for (object in operators) {
-            if (object.name === operand) {
-                return object.operation(num1, num2)
+            if (object == operand) {
+                return operators[object].operate(num1, num2)
             }
         }
 }
-
 
 const operators = {
     '*' : {
         'precedence': 2,
         'name' : 'multiplication',
-        get operation(num1, num2) {return num1 * num2;},
+        operate(num1, num2){return num1 * num2;},
     },
     '/': {
         'precedence': 2,
         'name' : '/',
-        get operation(num1, num2) {return num1 / num2;},
+        operate(num1, num2){return num1 / num2;},
     },
     '+': {
         'precedence': 1,
         'name' : 'addition',
-        get operation(num1, num2) {return num1 + num2;},
+        operate(num1, num2){return num1 + num2;},
     },
     '—': {
         'precedence': 1,
         'name' : 'subtraction',
-        get operation(num1, num2) {return num1 - num2;},
+        operate(num1, num2){return num1 - num2;},
     },
     '^': {
         'precedence': 3,
         'name' : 'exponentiation',
-        get operation(num1, num2) {return num1 ** num2;},
+        operate(num1, num2){return num1 ** num2;},
     },
     '(': {
         'precedence': 0,
@@ -230,3 +223,5 @@ const operators = {
         'operation' : null, 
     },
 }
+
+
