@@ -1,111 +1,96 @@
 initializeCalculator();
+// using multiple classes for html
+// implementing string.split for parsing the intial expression.
+//clean up CSS & HTML 
+
 
 //Initializes calculator
+
+function getInput() {
+    return document.getElementById('input').innerText; 
+}
+function getOutput() {
+    return document.getElementById('output').innerText;
+}
+
+function setInput(input) {
+    document.getElementById('input').innerText = input;
+}    
+function setOutput(output) {
+    document.getElementById('output').innerText = output;
+}
+
 function initializeCalculator() {
-    const display = initializeDisplay();
-    const memory = initializeMemory(display[0], display[1]);
-    initializeControlButtons(display[0], display[1], memory);
-    initializeNumberButtons(display[0]);
-    initializeOperatorButtons(display[0]);
-
+    const memory = initializeMemory();
+    initializeControlButtons(memory);
+    initializeButtons();
 }
 
-function initializeDisplay() {
-    const inputDisplay = document.getElementById('input');
-    const outputDisplay = document.getElementById('output');
-    return [inputDisplay, outputDisplay];
-}
-
-function initializeMemory(inputDisplay, outputDisplay) {
+function initializeMemory() {
     let memory = [];
     let memoryIndex = 0;
-    const previousButton = document.getElementById('previous');
-    const nextButton = document.getElementById('next');
-    
-    previousButton.addEventListener('click', () => {
+
+    document.getElementById('previous').addEventListener('click', () => {
         try {
-            outputDisplay.innerText = memory[memoryIndex][1];
-            inputDisplay.innerText = memory[memoryIndex][0];
+            setInput(memory[memoryIndex][0]); 
+            setOutput(memory[memoryIndex][1]);
         } catch {
             memoryIndex = 0;
-            outputDisplay.innerText = memory[memoryIndex][1];
-            inputDisplay.innerText = memory[memoryIndex][0];
+            setInput(memory[memoryIndex][0]); 
+            setOutput(memory[memoryIndex][1]);
         } finally {
             memoryIndex++;
         }
     })
     
-    nextButton.addEventListener('click', () => {
+    document.getElementById('next').addEventListener('click', () => {
         try {
-            outputDisplay.innerText = memory[memoryIndex][1];
-            inputDisplay.innerText = memory[memoryIndex][0];
-            console.log(memoryIndex, 'tried');
+            setInput(memory[memoryIndex][0]); 
+            setOutput(memory[memoryIndex][1]);
         } catch {
             memoryIndex = memory.length-1;
-            outputDisplay.innerText = memory[memoryIndex][1];
-            inputDisplay.innerText = memory[memoryIndex][0];
-            console.log(memoryIndex), 'caught';
+            setInput(memory[memoryIndex][0]); 
+            setOutput(memory[memoryIndex][1]);
         } finally {
             memoryIndex--;
-            console.log(memoryIndex, 'finally');
         }
     })
 return memory;    
 }
 
-function initializeControlButtons(inputDisplay, outputDisplay, memory) {
-    const equalsButton = document.getElementById('equals');
-    const clearEntryButton = document.getElementById('clearentry');
-    const allClearButton = document.getElementById('allclear');
-    const deleteButton = document.getElementById('delete');
+function initializeControlButtons(memory) {
+    document.getElementById('clearentry')
+    .addEventListener('click', () => {setInput(''); setOutput(''); });
     
-    clearEntryButton.addEventListener('click', () => {inputDisplay.innerText= '';});
+    document.getElementById('delete').addEventListener('click', () => {
+        setInput(getInput().slice(0, -1))});
     
-    deleteButton.addEventListener('click', () => {inputDisplay.innerText = inputDisplay.innerText.slice(0, -1)});
-    
-    equalsButton.addEventListener('click', () => {
-        let currentDisplayValue = inputDisplay.innerText;
-        outputDisplay.innerText = prepExpressionAndCalculate(currentDisplayValue);
-        memory.unshift([inputDisplay.innerText, outputDisplay.innerText]);
+    document.getElementById('equals')
+    .addEventListener('click', () => {
+        setOutput(prepExpressionAndCalculate(getInput()));
+        memory.unshift([getInput(), getOutput()]);
     })
 
-    allClearButton.addEventListener('click', () => {
-        inputDisplay.innerText = '';
-        outputDisplay.innerText = '';
+    document.getElementById('allclear').addEventListener('click', () => {
+        setInput('');
+        setOutput('');
         memory = [];
-    })
-    
-    
+    })   
 }
 
-function initializeNumberButtons(inputDisplay) {
-    const numberButtons = document.querySelectorAll('.NumberButton');
-    for (element of numberButtons) {
+function initializeButtons() {
+    for (element of document.querySelectorAll('.MainButtons')) {
         element.addEventListener('click', (e) => {
-            const currentDisplayValue = inputDisplay.innerText;
-            inputDisplay.innerText = currentDisplayValue + e.target.value
-        })
-    }
-}
-
-function initializeOperatorButtons(inputDisplay) {
-    const operatorButtons = document.querySelectorAll('.OperatorButton');
-    for (element of operatorButtons) {
-        element.addEventListener('click', (e) => {
-            const currentDisplayValue = inputDisplay.innerText;
-            inputDisplay.innerText = currentDisplayValue + e.target.value
+            setInput(getInput() + e.target.value);
         })
     }
 }
 
 
 //calculates expressions
-String.prototype.isNumber = function() {
-    if (Number(this)) {return true}
-    else {return false};
-}
 
 function prepExpressionAndCalculate(string) {
+    console.log(string);
     const parsedExpression = expressionParser(string);
     const convertedExpression = convertInfixtoPostfix(parsedExpression);
     const solvedExpression = solvePostfixExpression(convertedExpression);
@@ -113,7 +98,8 @@ function prepExpressionAndCalculate(string) {
 }
 
 function expressionParser(string) {
-    let infixString = '(' + string + ')';
+    const operators = getOperatorsInfo();
+    const infixString = '(' + string + ')';
     let infixExpression = [];
     let currentNumber = [];
     for (let i = 0; i < infixString.length; i++) {
@@ -132,15 +118,18 @@ function expressionParser(string) {
 }
 
 function convertInfixtoPostfix(infix) {
+    const operators = getOperatorsInfo();
     const postfixStack = [];
     const operandStack = [];
     const infixStack = infix;
     while (infixStack.length > 0) {
-        if (infixStack[0].isNumber()) {
+        if (Number(infixStack[0]) ? true : false) {
             postfixStack.push(infixStack[0]);
             infixStack.splice(0,1);
         } else if (infixStack[0] != '(' && infixStack[0] != ')') {
-                if (operators[operandStack.at(-1)].precedence >= operators[infixStack[0]].precedence) postfixStack.push(operandStack.pop());
+                if (operators[operandStack.at(-1)].precedence >= 
+                    operators[infixStack[0]].precedence) 
+                    postfixStack.push(operandStack.pop());
                 operandStack.push(infixStack[0]);
                 infixStack.splice(0,1);
         } else if (infixStack[0] == '(') {
@@ -160,10 +149,9 @@ return postfixStack;
 function solvePostfixExpression(postfixExpression) {
     let postfixStack = [];
     while (postfixExpression.length > 0) {
-        if (postfixExpression[0].isNumber()) {
+        if (Number(postfixExpression[0]) ? true : false) {
             postfixStack.push(postfixExpression[0]);
             postfixExpression.splice(0,1);
-            console.log('am i getting called?')
         } else {
             console.log(postfixStack);
             const num1 = Number(postfixStack.at(-2));
@@ -179,49 +167,50 @@ return postfixStack;
 }
     
 function applyOperand(num1, num2, operand) {
-        for (object in operators) {
-            if (object == operand) {
-                return operators[object].operate(num1, num2)
-            }
-        }
+    const operators = getOperatorsInfo();
+    return operators[operand].operate(num1, num2)
 }
 
-const operators = {
-    '*' : {
-        'precedence': 2,
-        'name' : 'multiplication',
-        operate(num1, num2){return num1 * num2;},
-    },
-    '/': {
-        'precedence': 2,
-        'name' : '/',
-        operate(num1, num2){return num1 / num2;},
-    },
-    '+': {
-        'precedence': 1,
-        'name' : 'addition',
-        operate(num1, num2){return num1 + num2;},
-    },
-    '—': {
-        'precedence': 1,
-        'name' : 'subtraction',
-        operate(num1, num2){return num1 - num2;},
-    },
-    '^': {
-        'precedence': 3,
-        'name' : 'exponentiation',
-        operate(num1, num2){return num1 ** num2;},
-    },
-    '(': {
-        'precedence': 0,
-        'name' : 'leftParentheses',
-        'operation' : null,
-    },
-    ')': {
-        'precedence': 4,
-        'name' : ')',
-        'operation' : null, 
-    },
+function getOperatorsInfo() {
+    const operators = {
+        '*' : {
+            'precedence': 2,
+            'name' : 'multiplication',
+            operate(num1, num2){return num1 * num2;},
+        },
+        '/': {
+            'precedence': 2,
+            'name' : '/',
+            operate(num1, num2){return num1 / num2;},
+        },
+        '+': {
+            'precedence': 1,
+            'name' : 'addition',
+            operate(num1, num2){return num1 + num2;},
+        },
+        '—': {
+            'precedence': 1,
+            'name' : 'subtraction',
+            operate(num1, num2){return num1 - num2;},
+        },
+        '^': {
+            'precedence': 3,
+            'name' : 'exponentiation',
+            operate(num1, num2){return num1 ** num2;},
+        },
+        '(': {
+            'precedence': 0,
+            'name' : 'leftParentheses',
+            'operation' : null,
+        },
+        ')': {
+            'precedence': 4,
+            'name' : ')',
+            'operation' : null, 
+        },
+        'sqrt': {}
+    }
+    return operators
 }
 
 
