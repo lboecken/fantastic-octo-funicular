@@ -23,7 +23,8 @@ function setOutput(output) {
 function initializeCalculator() {
     const memory = initializeMemory();
     initializeControlButtons(memory);
-    initializeButtons();
+    initializeOperatorButtons();
+    initializeNumberButtons();
 }
 
 function initializeMemory() {
@@ -78,8 +79,16 @@ function initializeControlButtons(memory) {
     })   
 }
 
-function initializeButtons() {
-    for (element of document.querySelectorAll('.MainButtons')) {
+function initializeOperatorButtons() {
+    for (element of document.querySelectorAll('.Operator')) {
+        element.addEventListener('click', (e) => {
+            setInput(getInput() + '\u00A0' + e.target.value + '\u00A0');
+        })
+    }
+}
+
+function initializeNumberButtons() {
+    for (element of document.querySelectorAll('.Number')) {
         element.addEventListener('click', (e) => {
             setInput(getInput() + e.target.value);
         })
@@ -90,7 +99,6 @@ function initializeButtons() {
 //calculates expressions
 
 function prepExpressionAndCalculate(string) {
-    console.log(string);
     const parsedExpression = expressionParser(string);
     const convertedExpression = convertInfixtoPostfix(parsedExpression);
     const solvedExpression = solvePostfixExpression(convertedExpression);
@@ -98,23 +106,10 @@ function prepExpressionAndCalculate(string) {
 }
 
 function expressionParser(string) {
-    const operators = getOperatorsInfo();
-    const infixString = '(' + string + ')';
-    let infixExpression = [];
-    let currentNumber = [];
-    for (let i = 0; i < infixString.length; i++) {
-        if (Object.keys(operators).every(e => e != infixString[i])|| infixString[i] == '.') {
-            if (infixString[i] === '-') {
-                currentNumber.push('-')
-            } else {       
-                currentNumber.push(infixString[i]);
-            }
-        } else {
-            if (currentNumber.length > 0) infixExpression.push(currentNumber.join(''));
-            currentNumber = [];
-            infixExpression.push(infixString[i]);
-        };
-    } return infixExpression;
+    const parsedExpression = string.split('\u00A0');
+    parsedExpression.push(')');
+    parsedExpression.unshift('(');
+    return parsedExpression
 }
 
 function convertInfixtoPostfix(infix) {
@@ -122,6 +117,7 @@ function convertInfixtoPostfix(infix) {
     const postfixStack = [];
     const operandStack = [];
     const infixStack = infix;
+    console.log(infixStack);
     while (infixStack.length > 0) {
         if (Number(infixStack[0]) ? true : false) {
             postfixStack.push(infixStack[0]);
@@ -153,7 +149,6 @@ function solvePostfixExpression(postfixExpression) {
             postfixStack.push(postfixExpression[0]);
             postfixExpression.splice(0,1);
         } else {
-            console.log(postfixStack);
             const num1 = Number(postfixStack.at(-2));
             const num2 = Number(postfixStack.at(-1));
             postfixStack.pop();
@@ -175,40 +170,30 @@ function getOperatorsInfo() {
     const operators = {
         '*' : {
             'precedence': 2,
-            'name' : 'multiplication',
             operate(num1, num2){return num1 * num2;},
         },
         '/': {
             'precedence': 2,
-            'name' : '/',
             operate(num1, num2){return num1 / num2;},
         },
         '+': {
             'precedence': 1,
-            'name' : 'addition',
             operate(num1, num2){return num1 + num2;},
         },
         '—': {
             'precedence': 1,
-            'name' : 'subtraction',
             operate(num1, num2){return num1 - num2;},
         },
         '^': {
             'precedence': 3,
-            'name' : 'exponentiation',
             operate(num1, num2){return num1 ** num2;},
         },
         '(': {
             'precedence': 0,
-            'name' : 'leftParentheses',
-            'operation' : null,
         },
         ')': {
             'precedence': 4,
-            'name' : ')',
-            'operation' : null, 
         },
-        'sqrt': {}
     }
     return operators
 }
