@@ -9,6 +9,7 @@
     height: 650px;
     margin: auto;
     padding: 20px;
+    background: darkgrey;
 }
 
 .container * {
@@ -16,6 +17,10 @@
     cursor: pointer;
 }
 
+.Number{
+    border-radius: 15px;
+
+}
 #num0 {
     grid-column-start: 1;
     grid-row-start: 7;
@@ -119,6 +124,7 @@
 #allclear {
     grid-column-start: 3;
     grid-row-start: 3;
+    background: rgba(255, 140, 0, 0.63);
 
 }
 
@@ -148,6 +154,10 @@
     justify-self: left;
     align-self: center;
     height: 50px;
+    background:lightgray;
+    width: 100%;
+    cursor: default;
+    border : 1px solid black;
 }
 
 #output {
@@ -155,5 +165,10 @@
     grid-row: 2;
     justify-self: end;
     align-self: center;
+    text-align: right;
     height: 50px;
+    background:lightgray;
+    width: 100%;
+    cursor: default;
+    border : 1px solid black;
 }

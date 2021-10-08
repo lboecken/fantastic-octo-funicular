@@ -1,6 +1,5 @@
 initializeCalculator();
 // using multiple classes for html
-// implementing string.split for parsing the intial expression.
 //clean up CSS & HTML 
 
 
@@ -95,18 +94,20 @@ function initializeNumberButtons() {
     }
 }
 
-
 //calculates expressions
 
 function prepExpressionAndCalculate(string) {
+    console.log(string);
     const parsedExpression = expressionParser(string);
+    console.log(parsedExpression);
     const convertedExpression = convertInfixtoPostfix(parsedExpression);
     const solvedExpression = solvePostfixExpression(convertedExpression);
     return solvedExpression
 }
 
 function expressionParser(string) {
-    const parsedExpression = string.split('\u00A0');
+    let parsedExpression = string.split('\u00A0');
+    parsedExpression = parsedExpression.filter(element => element !== '') //edge case
     parsedExpression.push(')');
     parsedExpression.unshift('(');
     return parsedExpression
@@ -197,5 +198,3 @@ function getOperatorsInfo() {
     }
     return operators
 }
-
-
